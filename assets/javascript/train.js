@@ -14,7 +14,7 @@ $(document).ready(function () {
         hour: 3,
         minute: 15,
         ampm: "am",
-        frequency: 10,
+        frequency: 1,
         }
     ]
 
@@ -23,47 +23,57 @@ $(document).ready(function () {
     // This function setups the schedule with the predetermined object trainInputs
     function trainScheduleInitialSetup() {
         for (let i = 0; i < trainInputs.length; i++) {
-        var nameInput = trainInputs[i].name;
-        var destinationInput = trainInputs[i].destination;
-        var hourInput = trainInputs[i].hour;
-        var minuteInput = trainInputs[i].minute;
-        var ampm = trainInputs[i].ampm;
-        var frequencyInput = trainInputs[i].frequency;
-        
-        // Time concatenated from user input
-        var timeRaw = hourInput + ":" + minuteInput + " " + ampm; 
-
-        // Concatenated time put through moment.js
-        var time = moment(timeRaw, "hh:mm a")
-
-        // Converting the time to minutes
-        var timeMins = moment().diff(moment(time), "minutes");
-
-        // The math to see how many minutes past the arrival has been ellapsed
-        var minsPast = timeMins % frequencyInput;
-
-        // Math displays how many minutes left for arrival
-        var minsArrival = frequencyInput - minsPast;
-
-        // Adds minutes left for arrival into current time to display arrival time
-        var nextTrain = moment().add(minsArrival, "minutes");
-        
-        var trainInfoInput = {
-            name: nameInput,
-            destination: destinationInput,
-            frequency: frequencyInput,
-            nextArrival: moment(nextTrain).format("h:mm:ss a"),
-            minutesAway: minsArrival,
-        }
-
-        // Pushes all the above info to the trainInfo object so info can be displayed
-        trainInfo.push(trainInfoInput);
-        listTrains ();
-
+            var nameInput = trainInputs[i].name;
+            var destinationInput = trainInputs[i].destination;
+            var hourInput = trainInputs[i].hour;
+            var minuteInput = trainInputs[i].minute;
+            var ampm = trainInputs[i].ampm;
+            var frequencyInput = trainInputs[i].frequency;
             
+            // Time concatenated from user input
+            var timeRaw = hourInput + ":" + minuteInput + " " + ampm; 
+
+            // Concatenated time put through moment.js
+            var time = moment(timeRaw, "h:mm a")
+
+            // Converting the time to minutes
+            var timeMins = moment().diff(moment(time), "minutes");
+
+            // The math to see how many minutes past the arrival has been ellapsed
+            var minsPast = timeMins % frequencyInput;
+
+            // Math displays how many minutes left for arrival
+            var minsArrival = frequencyInput - minsPast;
+
+            // Adds minutes left for arrival into current time to display arrival time
+            // var nextTrain = moment().add(minsArrival, "minutes").format("hh:mm:ss a");
+            var nextTrain;
+
+
+            // THIS IS THE FUNCTION THAT ISN"T WORKING
+            var runningClock = function () {
+                nextTrain = moment().add(minsArrival, "minutes").format("hh:mm:ss a");
+                console.log(nextTrain);  
+            };
+
+            setInterval(runningClock,1000);
+            
+            var trainInfoInput = {
+                name: nameInput,
+                destination: destinationInput,
+                frequency: frequencyInput,
+                nextArrival: nextTrain,
+                minutesAway: minsArrival,
+            };
+
+            // Pushes all the above info to the trainInfo object so info can be displayed
+            trainInfo.push(trainInfoInput);
+            listTrains ()
+
         }
     }
 
+    
     // This function displays the train schedule information inside the Train Schedule table
     function listTrains (){
 
@@ -93,6 +103,8 @@ $(document).ready(function () {
 
     }    
 
+    
+    // On click event occurs when someone submits new train info
     $("#submitButton").on("click",function(event) {
         event.preventDefault();
         
@@ -136,5 +148,7 @@ $(document).ready(function () {
     })
     
     trainScheduleInitialSetup ()
+
+
 
 })
