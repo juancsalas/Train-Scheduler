@@ -18,7 +18,8 @@ var frequency = "";
 var arrivalTime = "";
 var minutesTill = "";
 var childKey = "";
-var minCountdown;
+var countdown;
+
 
 // Adds and updates day and date for train table heading
 var date = moment().format("dddd, MMMM Do, YYYY")
@@ -51,7 +52,7 @@ $("#submitButton").on("click",function(event) {
 
     // Adds minutes left for arrival into current time to display arrival time
     arrivalTime = moment().add(minutesTill, "minutes").format("hh:mm a");
-    
+
     // Pushing data into Firebase
     dataRef.ref().push({
         name: name,
@@ -63,9 +64,10 @@ $("#submitButton").on("click",function(event) {
 
 })
 
-
 // Grabs info from Firebase and adds it to the DOM
 dataRef.ref().on("child_added", function(childSnapshot) {
+    
+    countdown = childSnapshot.val().minutesTill
     
     // Creates a new row for the table that holds the train info
     var trainBody = $("<tr>");
@@ -85,6 +87,7 @@ dataRef.ref().on("child_added", function(childSnapshot) {
     // Appends everything to the train scheduler table
     trainBody.append(name).append(destination).append(frequency).append(arrivalTime).append(arrivalMins);
     $("#trainBody").append(trainBody);
+
 
     // This function is used to delete entries in the train schedule table
     $(".trash").on("click", function (){
