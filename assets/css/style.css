@@ -1,4 +1,42 @@
-caption {
-    caption-side: top;
-    color: black;
+#tableWrap, #formWrap, .form-group {
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-bottom: 40px;
+}
+
+.trainName {
+    margin-top: 20px;
+}
+
+#timeFrequency, #timeFrequencyLabels {
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+.col-5.offset-1 {
+    padding: 0;
+    /* margin-right:70pc */
+}
+
+.form-group.col-lg-1 {
+    margin-left: 0;
+}
+
+#frequencyInput {
+    margin-left: 40px;
+}
+
+.jumbotron.jumbotron-fluid {
+    text-align: center;
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+#submitButton {
+    margin-left: 55px;
+    margin-bottom: 20px;
+}
+
+.trash {
+    width: 12px;
 }

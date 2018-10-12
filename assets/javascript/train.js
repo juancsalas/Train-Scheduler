@@ -1,154 +1,104 @@
-$(document).ready(function () {
+// Initialize Firebase
+var config = {
+    apiKey: "AIzaSyDijDxVIyFAGv3idi9ubFPIDeQtcIEKk1w",
+    authDomain: "trainscheduler-d2091.firebaseapp.com",
+    databaseURL: "https://trainscheduler-d2091.firebaseio.com",
+    projectId: "trainscheduler-d2091",
+    storageBucket: "",
+    messagingSenderId: "47492394841"
+  };
+  firebase.initializeApp(config);
 
-    // trainInputs object has starter info for the train scheduler that will be converted and pushed to the trainInfom object below through the function trainScheduleInitialSetup and function listTrains 
-    var trainInputs = [
-        {name: "Thomas",
-        destination: "Big City",
-        hour: 4,
-        minute: 00,
-        ampm: "am",
-        frequency: 5,
-        },
-        {name: "Percey",
-        destination: "Florence",
-        hour: 3,
-        minute: 15,
-        ampm: "am",
-        frequency: 1,
-        }
-    ]
+var dataRef = firebase.database();
 
-    var trainInfo = [];
+// Variables that will be pushed into Firebase
+var name = "";
+var destination = "";
+var frequency = "";
+var arrivalTime = "";
+var minutesTill = "";
+var childKey = "";
+var minCountdown;
 
-    // This function setups the schedule with the predetermined object trainInputs
-    function trainScheduleInitialSetup() {
-        for (let i = 0; i < trainInputs.length; i++) {
-            var nameInput = trainInputs[i].name;
-            var destinationInput = trainInputs[i].destination;
-            var hourInput = trainInputs[i].hour;
-            var minuteInput = trainInputs[i].minute;
-            var ampm = trainInputs[i].ampm;
-            var frequencyInput = trainInputs[i].frequency;
-            
-            // Time concatenated from user input
-            var timeRaw = hourInput + ":" + minuteInput + " " + ampm; 
+// Adds and updates day and date for train table heading
+var date = moment().format("dddd, MMMM Do, YYYY")
+$("#date").html(date);
 
-            // Concatenated time put through moment.js
-            var time = moment(timeRaw, "h:mm a")
-
-            // Converting the time to minutes
-            var timeMins = moment().diff(moment(time), "minutes");
-
-            // The math to see how many minutes past the arrival has been ellapsed
-            var minsPast = timeMins % frequencyInput;
-
-            // Math displays how many minutes left for arrival
-            var minsArrival = frequencyInput - minsPast;
-
-            // Adds minutes left for arrival into current time to display arrival time
-            // var nextTrain = moment().add(minsArrival, "minutes").format("hh:mm:ss a");
-            var nextTrain;
-
-
-            // THIS IS THE FUNCTION THAT ISN"T WORKING
-            var runningClock = function () {
-                nextTrain = moment().add(minsArrival, "minutes").format("hh:mm:ss a");
-                console.log(nextTrain);  
-            };
-
-            setInterval(runningClock,1000);
-            
-            var trainInfoInput = {
-                name: nameInput,
-                destination: destinationInput,
-                frequency: frequencyInput,
-                nextArrival: nextTrain,
-                minutesAway: minsArrival,
-            };
-
-            // Pushes all the above info to the trainInfo object so info can be displayed
-            trainInfo.push(trainInfoInput);
-            listTrains ()
-
-        }
-    }
-
+$("#submitButton").on("click",function(event) {
+    event.preventDefault();
     
-    // This function displays the train schedule information inside the Train Schedule table
-    function listTrains (){
+    name = $("#trainInput").val().trim();
+    destination = $("#destinationInput").val().trim();
+    frequency = $("#frequencyInput").val().trim();
+    var hour = $("#hourInput").val().trim();
+    var minute = $("#minuteInput").val().trim();
+    var ampm = $("#ampm").val().trim();
+   
+    // Time concatenated from user input
+    var timeRaw = hour + ":" + minute + " " + ampm; 
 
-        $("#trainBody").empty ()
+    // Concatenated time put through moment.js
+    var time = moment(timeRaw, "hh:mm a")
 
-        for (let i = 0; i < trainInfo.length; i++) {
-            var trainName = trainInfo[i].name;
-            var trainDestination = trainInfo[i].destination;
-            var trainFrequency = trainInfo[i].frequency;
-            var trainArrival = trainInfo[i].nextArrival;
-            var trainAway = trainInfo[i].minutesAway;
+    // Converting the time to minutes
+    var timeMins = moment().diff(moment(time), "minutes");
 
-            var trainBody = $("<tr>");
-            trainBody.addClass("trainInfo");
+    // The math to see how many minutes past the arrival time has been ellapsed
+    var minsPast = timeMins % frequency;
 
-            var name = $("<td>").addClass("trainName").text(trainName);
-            var destination = $("<td>").addClass("destination").text(trainDestination);
-            var frequency = $("<td>").addClass("frequency").text(trainFrequency);
-            var arrivalTime = $("<td>").addClass("arrivalTime").text(trainArrival);
-            var arrivalMins = $("<td>").addClass("arrivalMins").text(trainAway);
+    // Math finds how many minutes left for arrival
+    minutesTill = frequency - minsPast;
 
-            trainBody.append(name).append(destination).append(frequency).append(arrivalTime).append(arrivalMins);
-            $("#trainBody").append(trainBody);
-
-        }
+    // Adds minutes left for arrival into current time to display arrival time
+    arrivalTime = moment().add(minutesTill, "minutes").format("hh:mm a");
     
-
-    }    
-
-    
-    // On click event occurs when someone submits new train info
-    $("#submitButton").on("click",function(event) {
-        event.preventDefault();
-        
-        var nameInput = $("#trainInput").val().trim();
-        var destinationInput = $("#destinationInput").val().trim();
-        var hourInput = $("#hourInput").val().trim();
-        var minuteInput = $("#minuteInput").val().trim();
-        var ampm = $("#ampm").val().trim();
-        var frequencyInput = $("#frequencyInput").val().trim();
-        
-        // Time concatenated from user input
-        var timeRaw = hourInput + ":" + minuteInput + " " + ampm; 
-
-        // Concatenated time put through moment.js
-        var time = moment(timeRaw, "hh:mm a")
-
-        // Converting the time to minutes
-        var timeMins = moment().diff(moment(time), "minutes");
-
-        // The math to see how many minutes past the arrival has been ellapsed
-        var minsPast = timeMins % frequencyInput;
-
-        // Math displays how many minutes left for arrival
-        var minsArrival = frequencyInput - minsPast;
-
-        // Adds minutes left for arrival into current time to display arrival time
-        var nextTrain = moment().add(minsArrival, "minutes");
-        
-        var trainInfoInput = {
-            name: nameInput,
-            destination: destinationInput,
-            frequency: frequencyInput,
-            nextArrival: moment(nextTrain).format("h:mm:ss a"),
-            minutesAway: minsArrival,
-        }
-
-        // Pushes all the above info to the trainInfo object so info can be displayed
-        trainInfo.push(trainInfoInput);
-        listTrains ();
-        
-    })
-    
-    trainScheduleInitialSetup ()
-
-
+    // Pushing data into Firebase
+    dataRef.ref().push({
+        name: name,
+        destination: destination,
+        frequency: frequency,
+        arrivalTime: arrivalTime,
+        minutesTill: minutesTill,
+    });
 
 })
+
+
+// Grabs info from Firebase and adds it to the DOM
+dataRef.ref().on("child_added", function(childSnapshot) {
+    
+    // Creates a new row for the table that holds the train info
+    var trainBody = $("<tr>");
+    trainBody.addClass("trainInfo");
+
+    // Creates trash icon button to use when user wants train info deleted
+    var button = $("<button>").addClass("btn").html("<img class='trash' src='https://useiconic.com//open-iconic/svg/trash.svg'>")
+
+    // Creates various columns with it's perspective info using data from Firebase
+    // Var name also captures the child ID key from Firebase and adds it to the element as an ID
+    var name = $("<td>").addClass("trainName").attr("id",childSnapshot.key).text(childSnapshot.val().name).append(button);
+    var destination = $("<td>").addClass("destination").text(childSnapshot.val().destination);
+    var frequency = $("<td>").addClass("frequency").text(childSnapshot.val().frequency);
+    var arrivalTime = $("<td>").addClass("arrivalTime").text(childSnapshot.val().arrivalTime);
+    var arrivalMins = $("<td>").addClass("arrivalMins").text(childSnapshot.val().minutesTill);
+
+    // Appends everything to the train scheduler table
+    trainBody.append(name).append(destination).append(frequency).append(arrivalTime).append(arrivalMins);
+    $("#trainBody").append(trainBody);
+
+    // This function is used to delete entries in the train schedule table
+    $(".trash").on("click", function (){
+        
+        // This block uses the element id which is the child ID key to delete the child from Firebase
+        var removeTrainFirebase = $(event.target).parent().parent().attr("id")
+        var removeChild = firebase.database().ref().child(removeTrainFirebase);
+        removeChild.remove()
+        
+        // This line remves the entire row from the DOM 
+        $(event.target).parent().parent().parent().remove();
+
+    })
+
+})
+
+
